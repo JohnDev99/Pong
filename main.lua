@@ -15,6 +15,7 @@ PADDLE_SPEED = 200
 --Start Method
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
+    love.window.setTitle('Pong')
 
     math.randomseed(os.time())
 
@@ -24,13 +25,16 @@ function love.load()
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = true,
+        resizable = false,
         vsync = true
     }) 
 
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+
+    player1Score = 0
+    player2Score = 0
 
     gameState = 'start'
 
@@ -97,8 +101,8 @@ function love.draw()
 
     --Draw Players points
     love.graphics.setFont(scoreFont)
-    --love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-    --love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
     --Draw the left paddle
     player1:render()
@@ -106,5 +110,15 @@ function love.draw()
     player2:render()
     --draw the ball
     ball:render()
+
+    --Display FPS
+    displayFPS()
+    
     push:apply('end')
+end
+
+function displayFPS()
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0, 255/255, 0, 255/255)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
 end
