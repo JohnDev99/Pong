@@ -81,6 +81,22 @@ function love.update(dt)
 
     end
 
+    --Player 2 Scores
+    if ball.x < 0 then
+        servingPlayer = 1
+        player2Score = player2Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
+    --Player 1 Scores
+    if ball.x > VIRTUAL_WIDTH then
+        servingPlayer = 2
+        player1Score = player1Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
 
 
     if love.keyboard.isDown('w') then
