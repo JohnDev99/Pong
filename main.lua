@@ -24,6 +24,12 @@ function love.load()
     scoreFont = love.graphics.newFont('font.ttf', 32)
     love.graphics.setFont(smallFont)
 
+    sounds = {
+        ['paddle_hit'] = love.audio.newSource('sounds/pong-11_sounds_paddle_hit.wav', 'static'),
+        ['wall_hit'] = love.audio.newSource('sounds/pong-11_sounds_wall_hit.wav', 'static'),
+        ['score'] = love.audio.newSource('sounds/pong-11_sounds_score.wav', 'static')
+    }
+
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
         resizable = false,
@@ -65,6 +71,8 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
+
+            sounds['paddle_hit']:play()
         end
 
         if ball:collides(player2) then
@@ -75,73 +83,78 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
+            sounds['paddle_hit']:play()
         end
 
 
         if ball.y <= 0 then
             ball.y = 0
             ball.dy = -ball.dy
+            sounds['wall_hit']:play()
         end
 
 
         if ball.y >= VIRTUAL_HEIGHT - 4 then
             ball.y = VIRTUAL_HEIGHT - 4
             ball.dy = -ball.dy
+            sounds['wall_hit']:play()
         end
 
-    end
+        --Player 2 Scores
+        if ball.x < 0 then
+            servingPlayer = 1
+            player2Score = player2Score + 1
+            sounds['score']:play()
 
-    --Player 2 Scores
-    if ball.x < 0 then
-        servingPlayer = 1
-        player2Score = player2Score + 1
+            if player2Score == 10 then
+                winningPlayer = 2
+                gameState = 'done'
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
+        end
 
-        if player2Score == 10 then
-            winningPlayer = 2
-            gameState = 'done'
+        --Player 1 Scores
+        if ball.x > VIRTUAL_WIDTH then
+            servingPlayer = 2
+            player1Score = player1Score + 1
+            sounds['score']:play()
+            if player1Score == 10 then
+                winningPlayer = 1
+                gameState = 'done'
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
+        end
+    
+
+
+
+        if love.keyboard.isDown('w') then
+            player1.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('s') then
+            player1.dy = PADDLE_SPEED
         else
-            gameState = 'serve'
-            ball:reset()
+            player1.dy = 0
         end
-    end
 
-    --Player 1 Scores
-    if ball.x > VIRTUAL_WIDTH then
-        servingPlayer = 2
-        player1Score = player1Score + 1
-        if player1Score == 10 then
-            winningPlayer = 1
-            gameState = 'done'
+        if love.keyboard.isDown('up') then
+            player2.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('down') then
+            player2.dy = PADDLE_SPEED
         else
-            gameState = 'serve'
-            ball:reset()
+            player2.dy = 0
         end
+
+        if gameState == 'play' then
+            ball:update(dt)
+        end
+
+        player1:update(dt)
+        player2:update(dt)
     end
-
-
-
-    if love.keyboard.isDown('w') then
-        player1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
-        player1.dy = PADDLE_SPEED
-    else
-        player1.dy = 0
-    end
-
-    if love.keyboard.isDown('up') then
-        player2.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('down') then
-        player2.dy = PADDLE_SPEED
-    else
-        player2.dy = 0
-    end
-
-    if gameState == 'play' then
-        ball:update(dt)
-    end
-
-    player1:update(dt)
-    player2:update(dt)
 end
 
 --Keyboard Input Exit application
